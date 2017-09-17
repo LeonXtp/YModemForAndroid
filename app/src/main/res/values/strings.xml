@@ -1,4 +1,4 @@
 <resources>
     <string name="app_name">YModemBLE</string>
-    <string name="tip">Oops!No Demo, take a look at the library module!</string>
+    <string name="tip">Oops!No Real ble component, use your own!</string>
 </resources>

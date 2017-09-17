@@ -47,6 +47,7 @@ public class YmodemBLE implements FileStreamThread.DataRaderListener {
     private static final String MD5_ERR = "MD5_ERR";
 
     private Context mContext;
+    private String filePath;
     private String fileNameString = "LPK001_Android";
     private String fileMd5String = "63e7bb6eed1de3cece411a7e3e8e763b";
     private YModemListener listener;
@@ -63,7 +64,18 @@ public class YmodemBLE implements FileStreamThread.DataRaderListener {
     //the timeout interval for a single package
     private static final int PACKAGE_TIME_OUT = 6000;
 
-    public YmodemBLE(Context context, String fileNameString, String fileMd5String, YModemListener listener) {
+    /**
+     * Construct of the YModemBLE,you may don't need the fileMD5 checking,remove it
+     *
+     * @param filePath       absolute path of the file
+     * @param fileNameString file name for sending to the terminal
+     * @param fileMd5String  md5 for terminal checking after transmission finished
+     * @param listener
+     */
+    public YmodemBLE(Context context, String filePath,
+                     String fileNameString, String fileMd5String,
+                     YModemListener listener) {
+        this.filePath = filePath;
         this.fileNameString = fileNameString;
         this.fileMd5String = fileMd5String;
         this.mContext = context;
@@ -127,7 +139,7 @@ public class YmodemBLE implements FileStreamThread.DataRaderListener {
      * ==============================================================================
      */
     private void sayHello() {
-        streamThread = new FileStreamThread(mContext, fileNameString, this);
+        streamThread = new FileStreamThread(mContext, filePath, this);
         CURR_STEP = STEP_HELLO;
         L.f("sayHello!!!");
         byte[] hello = YModemUtil.getYModelHello();
@@ -308,5 +320,43 @@ public class YmodemBLE implements FileStreamThread.DataRaderListener {
             }
         }
     };
+
+    public static class Builder {
+        private Context context;
+        private String filePath;
+        private String fileNameString;
+        private String fileMd5String;
+        private YModemListener listener;
+
+        public Builder with(Context context) {
+            this.context = context;
+            return this;
+        }
+
+        public Builder filePath(String filePath) {
+            this.filePath = filePath;
+            return this;
+        }
+
+        public Builder fileName(String fileName) {
+            this.fileNameString = fileName;
+            return this;
+        }
+
+        public Builder checkMd5(String fileMd5String) {
+            this.fileMd5String = fileMd5String;
+            return this;
+        }
+
+        public Builder callback(YModemListener listener) {
+            this.listener = listener;
+            return this;
+        }
+
+        public YmodemBLE build() {
+            return new YmodemBLE(context, filePath, fileNameString, fileMd5String, listener);
+        }
+
+    }
 
 }

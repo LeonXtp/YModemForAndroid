@@ -44,3 +44,5 @@ Thumbs.db
 
 build/
 
+libs/
+src/main/res/drawable/

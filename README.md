@@ -1,16 +1,16 @@
 # YModemForAndroid
--
+
 YModem For Android is a library that easy to transmit file data with some terminal devices like BloothLE using [ymodem protocol](https://en.wikipedia.org/wiki/YMODEM). 
 
 ## Get Started
--
+
 Supported URI formats:
 ``` 
 "file:///mnt/sdcard/image.png" // from SD card
 "assets://image.png" // from assets
 ```
 
-##### Initiation
+### Initiation
 ``` java
         ymodemBLE = new YmodemBLE.Builder()
                 .with(this)
@@ -42,7 +42,7 @@ Supported URI formats:
         ymodemBLE.start();
 ```
 
-##### Received data from terminal
+### Received data from terminal
 When you received response from the ble terminal, tell ymodemBLE to handle it:
 
 ``` java
@@ -50,7 +50,7 @@ ymodemBLE.onReceiveData(data);
 ```
 The param data should be byte array.
 
-##### Stop
+### Stop
 ``` java
 ymodemBLE.stop();
 ```

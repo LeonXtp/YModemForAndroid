@@ -58,7 +58,7 @@ public class FileStreamThread extends Thread {
                 try {
                     //We need to sleep for a while as the sending 1024 bytes data from ble would take several seconds
                     //In my circumstances, this can be up to 3 seconds.
-                    Thread.sleep(500);
+                    Thread.sleep(100);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }

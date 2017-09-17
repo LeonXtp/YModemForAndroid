@@ -42,8 +42,11 @@ Supported URI formats:
                         //the task has failed for several times of trying
                     }
                 }).build();
+```
 
-        ymodem.start();
+### Start transmission
+``` java
+ymodem.start();
 ```
 
 ### Received data from terminal

@@ -4,7 +4,7 @@ A ymodem implementation that suitable for android and BLE
 ```
  * MY YMODEM IMPLEMTATION
  * *SENDER: ANDROID APP *------------------------------------------* RECEIVER: BLE DEVICE*
- * 0x31 ---------------------------------------------------------->*
+ * HELLO BOOTLOADER ---------------------------------------------->*
  * <---------------------------------------------------------------* C
  * SOH 00 FF filename0fileSizeInByte0MD5[90] ZERO[38] CRC CRC----->*
  * <---------------------------------------------------------------* ACK C

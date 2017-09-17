@@ -108,7 +108,7 @@ public class FileStreamThread extends Thread {
     private void initStream() {
         if (inputStream == null) {
             try {
-                inputStream = YModemUtil.getAssetsInputStream(mContext, filePath);
+                inputStream = YModemUtil.getInputStream(mContext, filePath);
                 fileByteSize = inputStream.available();
             } catch (IOException e) {
                 e.printStackTrace();

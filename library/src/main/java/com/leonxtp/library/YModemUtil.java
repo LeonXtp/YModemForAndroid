@@ -17,7 +17,8 @@ import java.util.Arrays;
 
 public class YModemUtil {
 
-    private static final byte HELLO = 0x31;
+    /*This is my concrete ymodem start signal, customise it to your needs*/
+    private static final String HELLO = "HELLO BOOTLOADER";
 
     private static final byte SOH = 0x01; /* Start Of Header with data size :128*/
     private static final byte STX = 0x02; /* Start Of Header with data size : 1024*/
@@ -30,7 +31,7 @@ public class YModemUtil {
      * Get the first package data for hello with a terminal
      */
     public static byte[] getYModelHello() {
-        return new byte[]{HELLO};
+        return HELLO.getBytes();
     }
 
     /**
@@ -113,8 +114,8 @@ public class YModemUtil {
      *
      * @param fileAbsolutePath absolute path of the file in asstes
      */
-    public static InputStream getAssetsInputStream(Context context, String fileAbsolutePath) throws IOException {
-        return context.getAssets().open(fileAbsolutePath);
+    public static InputStream getInputStream(Context context, String fileAbsolutePath) throws IOException {
+        return new InputStreamSource().getStream(context, fileAbsolutePath);
     }
 
     private static byte[] getDataHeader(byte sequence, byte start) {

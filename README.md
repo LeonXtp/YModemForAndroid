@@ -89,6 +89,11 @@ The concrete ymodem protocol implemented in this library:
  * <---------------------------------------------------------------* ACK
  * <---------------------------------------------------------------* MD5_OK
  ```
+ 
+## Reference
+[Wikipedia YMODEM](https://en.wikipedia.org/wiki/YMODEM)
+[xmodem、ymodem、zmodem](http://web.cecs.pdx.edu/~rootd/catdoc/guide/TheGuide_226.html)
+[aesirot ymodem on github](https://github.com/aesirot/ymodem)
 
 ## License
 

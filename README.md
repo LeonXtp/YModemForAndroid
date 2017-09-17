@@ -2,6 +2,10 @@
 
 YModem For Android is a library that easy to transmit file data with some terminal devices like BloothLE using [ymodem protocol](https://en.wikipedia.org/wiki/YMODEM). 
 
+## Notice
+
+Though suitable, this library doesn't supply a ble component for transmitting data with terminal, it's your responsibility to encapsulate your own. 
+
 ## Get Started
 
 Supported URI formats:
@@ -12,7 +16,7 @@ Supported URI formats:
 
 ### Initiation
 ``` java
-        ymodemBLE = new YmodemBLE.Builder()
+        ymodem = new Ymodem.Builder()
                 .with(this)
                 .filePath("assets://demo.bin")
                 .fileName("demo.bin")
@@ -39,20 +43,20 @@ Supported URI formats:
                     }
                 }).build();
 
-        ymodemBLE.start();
+        ymodem.start();
 ```
 
 ### Received data from terminal
 When you received response from the ble terminal, tell ymodemBLE to handle it:
 
 ``` java
-ymodemBLE.onReceiveData(data);
+ymodem.onReceiveData(data);
 ```
 The param data should be byte array.
 
 ### Stop
 ``` java
-ymodemBLE.stop();
+ymodem.stop();
 ```
 Just enjoy it!
 

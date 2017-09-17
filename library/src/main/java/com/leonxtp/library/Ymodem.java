@@ -30,7 +30,7 @@ import java.io.IOException;
  * Modified by leonxtp on 2017/9/16
  */
 
-public class YmodemBLE implements FileStreamThread.DataRaderListener {
+public class Ymodem implements FileStreamThread.DataRaderListener {
 
     private static final int STEP_HELLO = 0x00;
     private static final int STEP_FILE_NAME = 0x01;
@@ -72,9 +72,9 @@ public class YmodemBLE implements FileStreamThread.DataRaderListener {
      * @param fileMd5String  md5 for terminal checking after transmission finished
      * @param listener
      */
-    public YmodemBLE(Context context, String filePath,
-                     String fileNameString, String fileMd5String,
-                     YModemListener listener) {
+    public Ymodem(Context context, String filePath,
+                  String fileNameString, String fileMd5String,
+                  YModemListener listener) {
         this.filePath = filePath;
         this.fileNameString = fileNameString;
         this.fileMd5String = fileMd5String;
@@ -353,8 +353,8 @@ public class YmodemBLE implements FileStreamThread.DataRaderListener {
             return this;
         }
 
-        public YmodemBLE build() {
-            return new YmodemBLE(context, filePath, fileNameString, fileMd5String, listener);
+        public Ymodem build() {
+            return new Ymodem(context, filePath, fileNameString, fileMd5String, listener);
         }
 
     }

@@ -5,11 +5,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 
 import com.leonxtp.library.YModemListener;
-import com.leonxtp.library.YmodemBLE;
+import com.leonxtp.library.Ymodem;
 
 public class MainActivity extends AppCompatActivity {
 
-    private YmodemBLE ymodemBLE;
+    private Ymodem ymodem;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -19,7 +19,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void startTransmission() {
 
-        ymodemBLE = new YmodemBLE.Builder()
+        ymodem = new Ymodem.Builder()
                 .with(this)
                 .filePath("assets://demo.bin")
                 .fileName("demo.bin")
@@ -46,25 +46,25 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }).build();
 
-        ymodemBLE.start();
+        ymodem.start();
     }
 
     /**
-     * When you received response from the ble terminal, tell ymodemBLE
+     * When you received response from the ble terminal, tell ymodem
      */
     public void onDataReceivedFromBLE(byte[] data) {
-        ymodemBLE.onReceiveData(data);
+        ymodem.onReceiveData(data);
     }
 
     /*stop the transmission*/
     public void onStopClick(View view) {
-        ymodemBLE.stop();
+        ymodem.stop();
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        //When the activity finished unexpected, just call stop ymodemBLE
-        ymodemBLE.stop();
+        //When the activity finished unexpected, just call stop ymodem
+        ymodem.stop();
     }
 }

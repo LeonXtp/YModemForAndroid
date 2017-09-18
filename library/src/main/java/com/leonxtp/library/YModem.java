@@ -30,7 +30,7 @@ import java.io.IOException;
  * Modified by leonxtp on 2017/9/16
  */
 
-public class Ymodem implements FileStreamThread.DataRaderListener {
+public class YModem implements FileStreamThread.DataRaderListener {
 
     private static final int STEP_HELLO = 0x00;
     private static final int STEP_FILE_NAME = 0x01;
@@ -60,7 +60,7 @@ public class Ymodem implements FileStreamThread.DataRaderListener {
     //package data of current sending, used for int case of fail
     private byte[] currSending = null;
     private int packageErrorTimes = 0;
-    private static final int MAX_PACKAGE_SEND_ERROR_TIMES = 5;
+    private static final int MAX_PACKAGE_SEND_ERROR_TIMES = 6;
     //the timeout interval for a single package
     private static final int PACKAGE_TIME_OUT = 6000;
 
@@ -72,7 +72,7 @@ public class Ymodem implements FileStreamThread.DataRaderListener {
      * @param fileMd5String  md5 for terminal checking after transmission finished
      * @param listener
      */
-    public Ymodem(Context context, String filePath,
+    public YModem(Context context, String filePath,
                   String fileNameString, String fileMd5String,
                   YModemListener listener) {
         this.filePath = filePath;
@@ -109,6 +109,7 @@ public class Ymodem implements FileStreamThread.DataRaderListener {
         //Stop the package timer
         timerHelper.stopTimer();
         if (respData != null && respData.length > 0) {
+            L.f("YModem received " + respData.length + " bytes.");
             switch (CURR_STEP) {
                 case STEP_HELLO:
                     handleHello(respData);
@@ -117,7 +118,7 @@ public class Ymodem implements FileStreamThread.DataRaderListener {
                     handleFileName(respData);
                     break;
                 case STEP_FILE_BODY:
-                    handleFileBody(respData[0]);
+                    handleFileBody(respData);
                     break;
                 case STEP_EOT:
                     handleEOT(respData);
@@ -143,9 +144,7 @@ public class Ymodem implements FileStreamThread.DataRaderListener {
         CURR_STEP = STEP_HELLO;
         L.f("sayHello!!!");
         byte[] hello = YModemUtil.getYModelHello();
-        if (listener != null) {
-            listener.onDataReady(hello);
-        }
+        sendPackageData(hello);
     }
 
     private void sendFileName() {
@@ -153,11 +152,9 @@ public class Ymodem implements FileStreamThread.DataRaderListener {
         L.f("sendFileName");
         try {
             int fileByteSize = streamThread.getFileByteSize();
-            byte[] hello = YModemUtil.getFileNamePackage(fileNameString, fileByteSize
+            byte[] fileNamePackage = YModemUtil.getFileNamePackage(fileNameString, fileByteSize
                     , fileMd5String);
-            if (listener != null) {
-                listener.onDataReady(hello);
-            }
+            sendPackageData(fileNamePackage);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -172,12 +169,16 @@ public class Ymodem implements FileStreamThread.DataRaderListener {
     //Callback from the data reading thread when a data package is ready
     @Override
     public void onDataReady(byte[] data) {
+        sendPackageData(data);
+    }
+
+    private void sendPackageData(byte[] packageData) {
         if (listener != null) {
-            currSending = data;
+            currSending = packageData;
             //Start the timer, it will be cancelled when reponse received,
             // or trigger the timeout and resend the current package data
             timerHelper.startTimer(timeoutListener, PACKAGE_TIME_OUT);
-            listener.onDataReady(data);
+            listener.onDataReady(packageData);
         }
     }
 
@@ -209,6 +210,7 @@ public class Ymodem implements FileStreamThread.DataRaderListener {
     private void handleHello(byte[] value) {
         int character = value[0];
         if (character == ST_C) {//Receive "C" for "HELLO"
+            L.f("Received 'C'");
             packageErrorTimes = 0;
             sendFileName();
         } else {
@@ -219,17 +221,20 @@ public class Ymodem implements FileStreamThread.DataRaderListener {
     //The file name package was responsed
     private void handleFileName(byte[] value) {
         if (value.length == 2 && value[0] == ACK && value[1] == ST_C) {//Receive 'ACK C' for file name
+            L.f("Received 'ACK C'");
             packageErrorTimes = 0;
             startSendFileData();
         } else if (value[0] == ST_C) {//Receive 'C' for file name, this package should be resent
-            handlePackageFail();
+            L.f("Received 'C'");
+            handlePackageFail("Received 'C' without 'ACK' after sent file name");
         } else {
             handleOthers(value[0]);
         }
     }
 
-    private void handleFileBody(int character) {
-        if (character == ACK) {//Receive ACK for file data
+    private void handleFileBody(byte[] value) {
+        if (value.length == 1 && value[0] == ACK) {//Receive ACK for file data
+            L.f("Received 'ACK'");
             packageErrorTimes = 0;
             bytesSent += currSending.length;
             try {
@@ -241,22 +246,22 @@ public class Ymodem implements FileStreamThread.DataRaderListener {
             }
             streamThread.keepReading();
 
-        } else if (character == ST_C) {
+        } else if (value.length == 1 && value[0] == ST_C) {
+            L.f("Received 'C'");
             //Receive C for file data, the ymodem cannot handle this circumstance, transmission failed...
-            if (listener != null) {
-                listener.onFailed();
-            }
+            handlePackageFail("Received 'C' after sent file data");
         } else {
-            handleOthers(character);
+            handleOthers(value[0]);
         }
     }
 
     private void handleEOT(byte[] value) {
         if (value[0] == ACK) {
+            L.f("Received 'ACK'");
             packageErrorTimes = 0;
             sendEND();
         } else if (value[0] == ST_C) {//As we haven't received ACK, we should resend EOT
-            handlePackageFail();
+            handlePackageFail("Received 'C' after sent EOT");
         } else {
             handleOthers(value[0]);
         }
@@ -264,16 +269,19 @@ public class Ymodem implements FileStreamThread.DataRaderListener {
 
     private void handleEnd(byte[] character) {
         if (character[0] == ACK) {//The last ACK represents that the transmission has been finished, but we should validate the file
+            L.f("Received 'ACK'");
             packageErrorTimes = 0;
         } else if ((new String(character)).equals(MD5_OK)) {//The file data has been checked,Well Done!
+            L.f("Received 'MD5_OK'");
             stop();
             if (listener != null) {
                 listener.onSuccess();
             }
         } else if ((new String(character)).equals(MD5_ERR)) {//Oops...Transmission Failed...
+            L.f("Received 'MD5_ERR'");
             stop();
             if (listener != null) {
-                listener.onFailed();
+                listener.onFailed("MD5 check failed!!!");
             }
         } else {
             handleOthers(character[0]);
@@ -282,15 +290,20 @@ public class Ymodem implements FileStreamThread.DataRaderListener {
 
     private void handleOthers(int character) {
         if (character == NAK) {//We need to resend this package as the terminal failed when checking the crc
-            handlePackageFail();
+            L.f("Received 'NAK'");
+            handlePackageFail("Received NAK");
         } else if (character == CAN) {//Some big problem occurred, transmission failed...
+            L.f("Received 'CAN'");
+            if (listener != null) {
+                listener.onFailed("Received CAN");
+            }
             stop();
         }
     }
 
     //Handle a failed package data ,resend it up to MAX_PACKAGE_SEND_ERROR_TIMES times.
     //If still failed, then the transmission failed.
-    private void handlePackageFail() {
+    private void handlePackageFail(String reason) {
         packageErrorTimes++;
         if (packageErrorTimes < MAX_PACKAGE_SEND_ERROR_TIMES) {
             if (listener != null) {
@@ -300,7 +313,7 @@ public class Ymodem implements FileStreamThread.DataRaderListener {
             //Still, we stop the transmission, release the resources
             stop();
             if (listener != null) {
-                listener.onFailed();
+                listener.onFailed(reason);
             }
         }
     }
@@ -316,7 +329,7 @@ public class Ymodem implements FileStreamThread.DataRaderListener {
         @Override
         public void onTimeOut() {
             if (currSending != null) {
-                handlePackageFail();
+                handlePackageFail("package timeout...");
             }
         }
     };
@@ -353,8 +366,8 @@ public class Ymodem implements FileStreamThread.DataRaderListener {
             return this;
         }
 
-        public Ymodem build() {
-            return new Ymodem(context, filePath, fileNameString, fileMd5String, listener);
+        public YModem build() {
+            return new YModem(context, filePath, fileNameString, fileMd5String, listener);
         }
 
     }

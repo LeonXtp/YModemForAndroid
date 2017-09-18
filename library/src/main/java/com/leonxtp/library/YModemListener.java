@@ -15,6 +15,6 @@ public interface YModemListener {
     void onSuccess();
 
     /* the task has failed with several remedial measures like retrying some times*/
-    void onFailed();
+    void onFailed(String reason);
 
 }

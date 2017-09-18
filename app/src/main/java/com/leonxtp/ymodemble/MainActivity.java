@@ -5,11 +5,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 
 import com.leonxtp.library.YModemListener;
-import com.leonxtp.library.Ymodem;
+import com.leonxtp.library.YModem;
 
 public class MainActivity extends AppCompatActivity {
 
-    private Ymodem ymodem;
+    private YModem ymodem;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -19,7 +19,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void startTransmission() {
 
-        ymodem = new Ymodem.Builder()
+        ymodem = new YModem.Builder()
                 .with(this)
                 .filePath("assets://demo.bin")
                 .fileName("demo.bin")

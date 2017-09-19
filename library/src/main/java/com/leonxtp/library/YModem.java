@@ -172,16 +172,6 @@ public class YModem implements FileStreamThread.DataRaderListener {
         sendPackageData(data);
     }
 
-    private void sendPackageData(byte[] packageData) {
-        if (listener != null) {
-            currSending = packageData;
-            //Start the timer, it will be cancelled when reponse received,
-            // or trigger the timeout and resend the current package data
-            timerHelper.startTimer(timeoutListener, PACKAGE_TIME_OUT);
-            listener.onDataReady(packageData);
-        }
-    }
-
     private void sendEOT() {
         CURR_STEP = STEP_EOT;
         L.f("sendEOT");
@@ -199,6 +189,16 @@ public class YModem implements FileStreamThread.DataRaderListener {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+        }
+    }
+
+    private void sendPackageData(byte[] packageData) {
+        if (listener != null) {
+            currSending = packageData;
+            //Start the timer, it will be cancelled when reponse received,
+            // or trigger the timeout and resend the current package data
+            timerHelper.startTimer(timeoutListener, PACKAGE_TIME_OUT);
+            listener.onDataReady(packageData);
         }
     }
 
@@ -328,6 +328,7 @@ public class YModem implements FileStreamThread.DataRaderListener {
     private TimeOutHelper.ITimeOut timeoutListener = new TimeOutHelper.ITimeOut() {
         @Override
         public void onTimeOut() {
+            timerHelper.stopTimer();
             if (currSending != null) {
                 handlePackageFail("package timeout...");
             }

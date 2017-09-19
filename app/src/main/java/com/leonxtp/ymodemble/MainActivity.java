@@ -41,7 +41,7 @@ public class MainActivity extends AppCompatActivity {
                     }
 
                     @Override
-                    public void onFailed() {
+                    public void onFailed(String reason) {
                         //the task has failed for several times of trying
                     }
                 }).build();

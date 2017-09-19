@@ -50,7 +50,7 @@ ymodem.start();
 ```
 
 ### Received data from terminal
-When you received response from the ble terminal, tell ymodemBLE to handle it:
+When you received response from the ble terminal, tell ymodem to handle it:
 
 ``` java
 ymodem.onReceiveData(data);

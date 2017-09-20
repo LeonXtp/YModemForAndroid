@@ -10,13 +10,13 @@ Though suitable, this library doesn't supply a ble component for transmitting da
 
 Supported URI formats:
 ``` 
-"file:///mnt/sdcard/image.png" // from SD card
+"file:///storage/emulated/0/filename.bin" // from SD card
 "assets://image.png" // from assets
 ```
 
 ### Initiation
 ``` java
-        ymodem = new Ymodem.Builder()
+        ymodem = new YModem.Builder()
                 .with(this)
                 .filePath("assets://demo.bin")
                 .fileName("demo.bin")

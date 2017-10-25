@@ -22,7 +22,6 @@ public class TimeOutHelper {
             stopTimer();
             if (listener != null) {
                 listener.onTimeOut();
-                listener = null;
             }
         }
     };
@@ -33,7 +32,11 @@ public class TimeOutHelper {
     }
 
     public void stopTimer() {
-        timeoutHanldler.removeCallbacks(timer);
+        timeoutHanldler.removeCallbacksAndMessages(null);
+    }
+
+    public void unRegisterListener() {
+        listener = null;
     }
 
     public interface ITimeOut {
